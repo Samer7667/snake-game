@@ -64,6 +64,22 @@
   <button onclick="setDirection('right')">➡️</button>
   <button onclick="setDirection('down')">⬇️</button>
   <button onclick="setDirection('left')">⬅️</button>
+<img src="profile.jpg" alt="صورتك الشخصية" class="profile-img">
+
+<style>
+  .profile-img {
+    width: 30vw; /* 30% من عرض الشاشة */
+    max-width: 120px; /* لا يتجاوز 120px */
+    height: auto; /* يحافظ على التناسق */
+    aspect-ratio: 1 / 1; /* يجعلها مربعة دائمًا */
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    display: block;
+    margin: 20px auto;
+  }
+</style>
 </div>
 
 
