@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>لعبة الثعبان</title>
+  <style>
+    body {
+      background-color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      background: #111;
+      margin-top: 20px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      margin: 20px;
+    }
+
+    .controls button {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      background: #555;
+      color: white;
+    }
+
+    .controls button:active {
+      background: #777;
+    }
+
+    @media (max-width: 600px) {
+      canvas {
+        width: 90vw;
+        height: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 لعبة الثعبان</h1>
+  <canvas id="game" width="400" height="400"></canvas>
+
+  <div class="controls">
+    <div></div>
+    <button onclick="setDirection('up')">⬆️</button>
+    <div></div>
+    <button onclick="setDirection('left')">⬅️</button>
+    <button onclick="setDirection('down')">⬇️</button>
+    <button onclick="setDirection('right')">➡️</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const box = 20;
+    const canvasSize = 400;
+    let snake = [{ x: 200, y: 200 }];
+    let direction = 'right';
+    let food = generateFood();
+    let gameOver = false;
+
+    function generateFood() {
+      return {
+        x: Math.floor(Math.random() * (canvasSize / box)) * box,
+        y: Math.floor(Math.random() * (canvasSize / box)) * box
+      };
+    }
+
+    function draw() {
+      if (gameOver) return;
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? 'lime' : 'green';
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      ctx.fillStyle = 'red';
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let head = { x: snake[0].x, y: snake[0].y };
+
+      if (direction === 'right') head.x += box;
+      if (direction === 'left') head.x -= box;
+      if (direction === 'up') head.y -= box;
+      if (direction === 'down') head.y += box;
+
+      // Check wall collision
+      if (
+        head.x < 0 || head.x >= canvas.width ||
+        head.y < 0 || head.y >= canvas.height ||
+        snake.some(segment => segment.x === head.x && segment.y === head.y)
+      ) {
+        gameOver = true;
+        alert('انتهت اللعبة!');
+        location.reload();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        food = generateFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    setInterval(draw, 150);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
+      if (e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
+      if (e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
+      if (e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
+    });
+
+    function setDirection(dir) {
+      if (dir === 'up' && direction !== 'down') direction = 'up';
+      if (dir === 'down' && direction !== 'up') direction = 'down';
+      if (dir === 'left' && direction !== 'right') direction = 'left';
+      if (dir === 'right' && direction !== 'left') direction = 'right';
+    }
+  </script>
+</body>
+</html>
