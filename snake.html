@@ -86,6 +86,20 @@
 
       ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // رسم الشبكة
+ctx.strokeStyle = '#333';
+for (let x = 0; x < canvas.width; x += box) {
+  ctx.beginPath();
+  ctx.moveTo(x, 0);
+  ctx.lineTo(x, canvas.height);
+  ctx.stroke();
+}
+for (let y = 0; y < canvas.height; y += box) {
+  ctx.beginPath();
+  ctx.moveTo(0, y);
+  ctx.lineTo(canvas.width, y);
+  ctx.stroke();
+}
 
       for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? 'lime' : 'green';
@@ -102,17 +116,20 @@
       if (direction === 'up') head.y -= box;
       if (direction === 'down') head.y += box;
 
-      // Check wall collision
-      if (
-        head.x < 0 || head.x >= canvas.width ||
-        head.y < 0 || head.y >= canvas.height ||
-        snake.some(segment => segment.x === head.x && segment.y === head.y)
-      ) {
-        gameOver = true;
-        alert('انتهت اللعبة!');
-        location.reload();
-        return;
-      }
+      // التفاف من الحواف
+if (head.x < 0) head.x = canvas.width - box;
+if (head.x >= canvas.width) head.x = 0;
+if (head.y < 0) head.y = canvas.height - box;
+if (head.y >= canvas.height) head.y = 0;
+
+// الاصطدام بالذيل فقط يسبب الخسارة
+if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+  gameOver = true;
+  alert('اصطدمت بذيلك! انتهت اللعبة!');
+  location.reload();
+  return;
+}
+
 
       snake.unshift(head);
 
