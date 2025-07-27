@@ -55,6 +55,42 @@
     .controls button:active {
       background: #777;
     }
+.menu-container {
+  position: fixed;
+  top: 10px;
+  right: 10px; /* استخدم left: 10px; إذا كنت تريد المحاذاة لليسار */
+  z-index: 9999;
+}
+
+#menu-button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.menu-popup {
+  display: none;
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  margin-top: 5px;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+}
+
+.menu-popup a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+.menu-popup a:hover {
+  text-decoration: underline;
+}
 
     @media (max-width: 600px) {
       canvas {
@@ -65,7 +101,13 @@
   </style>
 </head>
 <body>
-  
+  <div class="menu-container">
+  <button id="menu-button">☰</button>
+  <div class="menu-popup" id="menu-popup">
+    <a href="https://samer7667.github.io/links-site/" target="_blank">🔗 مركز المواقع</a>
+  </div>
+</div>
+
 <img src="profile.jpg" alt="صورة المبرمج" class="PROGRAMMER-SAMMER-img">
 
   <h1>🎮 لعبة الثعبان</h1>
@@ -206,5 +248,21 @@ if ('serviceWorker' in navigator) {
 }
 
   </script>
+  <script>
+  const menuButton = document.getElementById('menu-button');
+  const menuPopup = document.getElementById('menu-popup');
+
+  menuButton.addEventListener('click', () => {
+    menuPopup.style.display = menuPopup.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // إغلاق النافذة إذا نقر المستخدم خارجها
+  document.addEventListener('click', function(event) {
+    if (!menuButton.contains(event.target) && !menuPopup.contains(event.target)) {
+      menuPopup.style.display = 'none';
+    }
+  });
+</script>
+
 </body>
 </html>
