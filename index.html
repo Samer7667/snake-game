@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>لعبة الثعبان</title>
+  <!-- 🟢 أيقونة وإعداد PWA -->
+  <link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<meta name="theme-color" content="#00ff00">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       background-color: #222;
@@ -179,6 +185,17 @@ alert(`اصطدمت بذيلك! انتهت اللعبة!\nنقاطك: ${score}`)
       if (dir === 'left' && direction !== 'right') direction = 'left';
       if (dir === 'right' && direction !== 'left') direction = 'right';
     }
+    // تسجيل الـ Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(function(reg) {
+      console.log('✅ تم تسجيل Service Worker بنجاح:', reg.scope);
+    })
+    .catch(function(err) {
+      console.log('❌ فشل التسجيل:', err);
+    });
+}
+
   </script>
 </body>
 </html>
