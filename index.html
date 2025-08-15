@@ -1,284 +1,302 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <title>🎮 لعبة الثعبان — ذكي</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    :root {
-      --topbar-height: 60px;
-      --score-height: 38px;
-      --bg: #222;
-      --panel: rgba(0, 0, 0, 0.25);
-    }
+<meta charset="utf-8" />
+<title>🎮 لعبة الثعبان — ذكي</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+:root {
+  --score-height: 38px;
+  --bg: #222;
+}
 
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: var(--bg);
-      color: #fff;
-      font-family: system-ui, Segoe UI, Helvetica, Arial;
-    }
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: #fff;
+  font-family: system-ui, Segoe UI, Helvetica, Arial;
+}
 
-    /* الشريط العلوي */
-    .topbar {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 980px;
-      height: var(--topbar-height);
-      background: var(--panel);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 14px;
-      box-sizing: border-box;
-      backdrop-filter: blur(5px);
-      z-index: 1000;
-      border-radius: 0 0 10px 10px;
-    }
+/* شاشة البداية */
+.splash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #222;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeOut 1s ease forwards;
+  animation-delay: 2s;
+}
 
-    .topbar img {
-      height: 44px;
-      width: 44px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
-    }
+.splash img {
+  width: 100px;
+  animation: zoomIn 1s ease;
+}
 
-    .topbar h1 {
-      font-size: 17px;
-      margin: 0;
-      white-space: nowrap;
-    }
+.splash h1 {
+  margin-top: 10px;
+  font-size: 22px;
+  animation: fadeIn 1.2s ease;
+}
 
-    /* النقاط */
-    #score {
-      position: fixed;
-      top: calc(var(--topbar-height) + 10px);
-      right: 20px;
-      font-size: 18px;
-      font-weight: bold;
-      color: yellow;
-      background: rgba(0,0,0,0.4);
-      padding: 4px 10px;
-      border-radius: 6px;
-      z-index: 999;
-      height: var(--score-height);
-      display: flex;
-      align-items: center;
-    }
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
 
-    /* منطقة اللعبة */
-    main {
-      padding-top: calc(var(--topbar-height) + var(--score-height) + 30px);
-      /* مسافة إضافية حتى لا يختفي الثعبان خلف الشريط أو النقاط */
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      
-    }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 
-    canvas {
-      background: #111;
-      width: 400px;
-      height: 400px;
-      max-width: 90vw;
-      max-height: 90vw;
-      border-radius: 8px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.6);
-      touch-action: none;
-      display: block;
-    }
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
 
-    /* أزرار التحكم */
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 10px;
-      margin: 18px;
-      justify-content: center;
-    }
+/* النقاط */
+#score {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: yellow;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 10px;
+  border-radius: 6px;
+  z-index: 999;
+  height: var(--score-height);
+  display: flex;
+  align-items: center;
+}
 
-    .controls button {
-      width: 60px;
-      height: 60px;
+/* منطقة اللعبة */
+main {
+  padding-top: 60px; /* نزول بسيط حتى لا يغطيه شريط النقاط */
+  padding-bottom: 40px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-      border-radius: 8px;
-      border: 0;
-      background: #555;
-      color: #fff;
-      font-size: 20px;
-      touch-action: manipulation;
-    }
+canvas {
+  background: #111;
+  width: 400px;
+  height: 400px;
+  max-width: 90vw;
+  max-height: 90vw;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.6);
+  touch-action: none;
+  display: block;
+}
 
-    body.playing {
-      overflow: hidden;
-      touch-action: none;
-    }
+/* أزرار التحكم */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  gap: 10px;
+  margin: 18px;
+  justify-content: center;
+}
 
-    @media (max-width: 600px) {
-      :root { --topbar-height: 54px; }
-      .topbar img { height: 36px; width: 36px; }
-      .topbar h1 { font-size: 15px; }
-      #score { font-size: 16px; height: 34px; }
-      .controls button { width: 54px; height: 54px; }
-    }
-  </style>
+.controls button {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  border: 0;
+  background: #555;
+  color: #fff;
+  font-size: 20px;
+  touch-action: manipulation;
+}
+
+body.playing {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* الشريط السفلي */
+.footer {
+  background: rgba(0,0,0,0.25);
+  text-align: center;
+  padding: 10px 5px;
+  margin-top: 20px;
+}
+
+.footer img {
+  height: 25px;
+  margin-bottom: 5px;
+  border-radius: 50%;
+}
+
+.footer-text {
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  #score { font-size: 16px; height: 34px; }
+  .controls button { width: 54px; height: 54px; }
+}
+</style>
 </head>
 <body>
-  <!-- الشريط العلوي -->
-  <div class="topbar">
-    <img src="profile.jpg" alt="مطور">
-    <h1>🎮 لعبة الثعبان</h1>
+<!-- Splash Screen -->
+<div class="splash">
+  <img src="icons/icon-512.png" alt="شعار اللعبة">
+  <h1>🎮 لعبة الثعبان</h1>
+</div>
+
+<!-- النقاط -->
+<p id="score">النقاط: 0</p>
+
+<!-- اللعبة -->
+<main>
+  <canvas id="game" width="400" height="400" tabindex="0"></canvas>
+  <div class="controls" id="controls">
+    <div></div>
+    <button data-dir="up">⬆️</button>
+    <div></div>
+    <button data-dir="right">➡️</button>
+    <button data-dir="down">⬇️</button>
+    <button data-dir="left">⬅️</button>
   </div>
+</main>
 
-  <!-- النقاط -->
-  <p id="score">النقاط: 0</p>
+<!-- الشريط السفلي -->
+<div class="footer">
+  <img src="profile.jpg" alt="شعار اللعبة">
+  <div class="footer-text">© جميع الحقوق محفوظة - لعبة الثعبان</div>
+</div>
 
-  <!-- اللعبة -->
-  <main>
-    <canvas id="game" width="400" height="400" tabindex="0"></canvas>
-    <div class="controls" id="controls">
-      <div></div>
-      <button data-dir="up">⬆️</button>
-      <div></div>
-      <button data-dir="right">➡️</button>
-      <button data-dir="down">⬇️</button>
-      <button data-dir="left">⬅️</button>
-    </div>
-  </main>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const controls = document.getElementById('controls');
 
-  <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
-    const controls = document.getElementById('controls');
+const box = 20;
+let snake = [{x:200, y:200}];
+let direction = 'right';
+let food = generateFood();
+let score = 0;
+let intervalId = null;
+let started = false;
 
-    const box = 20;
-    let snake = [{x:200, y:200}];
-    let direction = 'right';
-    let food = generateFood();
+function generateFood() {
+  let newFood;
+  do {
+    newFood = {
+      x: Math.floor(Math.random() * (canvas.width / box)) * box,
+      y: Math.floor(Math.random() * (canvas.height / box)) * box
+    };
+  } while (snake.some(s => s.x === newFood.x && s.y === newFood.y));
+  return newFood;
+}
 
-    let score = 0;
-    let intervalId = null;
-    let started = false;
+function draw() {
+  ctx.fillStyle = '#111';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function generateFood() {
-      let newFood;
-      do {
-        newFood = {
-          x: Math.floor(Math.random() * (canvas.width / box)) * box,
-          y: Math.floor(Math.random() * (canvas.height / box)) * box
-        };
-      } while (snake.some(s => s.x === newFood.x && s.y === newFood.y));
-      return newFood;
-    }
+  ctx.strokeStyle = '#333';
+  for (let x = 0; x < canvas.width; x += box) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += box) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
 
-    function draw() {
+  for (let i = 0; i < snake.length; i++) {
+    ctx.fillStyle = i === 0 ? 'lime' : 'green';
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+  }
 
+  ctx.fillStyle = 'red';
+  ctx.fillRect(food.x, food.y, box, box);
 
-      ctx.fillStyle = '#111';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let head = { x: snake[0].x, y: snake[0].y };
+  if (direction === 'right') head.x += box;
+  if (direction === 'left') head.x -= box;
+  if (direction === 'up') head.y -= box;
+  if (direction === 'down') head.y += box;
 
-      ctx.strokeStyle = '#333';
-      for (let x = 0; x < canvas.width; x += box) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < canvas.height; y += box) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
+  if (head.x < 0) head.x = canvas.width - box;
+  if (head.x >= canvas.width) head.x = 0;
+  if (head.y < 0) head.y = canvas.height - box;
+  if (head.y >= canvas.height) head.y = 0;
 
-      for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? 'lime' : 'green';
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
-      }
+  if (snake.some(s => s.x === head.x && s.y === head.y)) {
+    clearInterval(intervalId);
+    alert(`انتهت اللعبة!\nنقاطك: ${score}`);
+    location.reload();
+    return;
+  }
 
-      ctx.fillStyle = 'red';
-      ctx.fillRect(food.x, food.y, box, box);
+  snake.unshift(head);
 
-      let head = { x: snake[0].x, y: snake[0].y };
+  if (head.x === food.x && head.y === food.y) {
+    food = generateFood();
+    score++;
+    scoreEl.innerText = `النقاط: ${score}`;
+  } else {
+    snake.pop();
+  }
+}
 
-      if (direction === 'right') head.x += box;
-      if (direction === 'left') head.x -= box;
-      if (direction === 'up') head.y -= box;
-      if (direction === 'down') head.y += box;
+function startGame() {
+  if (started) return;
+  started = true;
+  document.body.classList.add('playing');
+  intervalId = setInterval(draw, 150);
+}
 
-      if (head.x < 0) head.x = canvas.width - box;
-      if (head.x >= canvas.width) head.x = 0;
-      if (head.y < 0) head.y = canvas.height - box;
-      if (head.y >= canvas.height) head.y = 0;
+window.addEventListener('keydown', e => {
+  const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+  if (arrows.includes(e.key)) {
+    e.preventDefault();
+    startGame();
+    if (e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
+    if (e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
+    if (e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
+    if (e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
+  }
+});
 
-      if (snake.some(s => s.x === head.x && s.y === head.y)) {
-        clearInterval(intervalId);
-        alert(`انتهت اللعبة!\nنقاطك: ${score}`);
-        location.reload();
-        return;
-      }
+controls.querySelectorAll('button[data-dir]').forEach(btn => {
+  const dir = btn.dataset.dir;
+  btn.addEventListener('click', () => {
+    startGame();
+    setDirection(dir);
+  });
+  btn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    startGame();
+    setDirection(dir);
+  }, {passive: false});
+});
 
-      snake.unshift(head);
+function setDirection(dir) {
+  if (dir === 'up' && direction !== 'down') direction = 'up';
+  if (dir === 'down' && direction !== 'up') direction = 'down';
+  if (dir === 'left' && direction !== 'right') direction = 'left';
+  if (dir === 'right' && direction !== 'left') direction = 'right';
+}
 
-      if (head.x === food.x && head.y === food.y) {
-        food = generateFood();
-        score++;
-        scoreEl.innerText = `النقاط: ${score}`;
-      } else {
-        snake.pop();
-      }
-    }
+canvas.addEventListener('click', () => startGame());
 
-    function startGame() {
-      if (started) return;
-      started = true;
-      document.body.classList.add('playing');
-      intervalId = setInterval(draw, 150);
-    }
-
-    window.addEventListener('keydown', e => {
-      const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-      if (arrows.includes(e.key)) {
-        e.preventDefault();
-        startGame();
-        if (e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
-        if (e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
-        if (e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
-        if (e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
-      }
-    });
-
-    controls.querySelectorAll('button[data-dir]').forEach(btn => {
-      const dir = btn.dataset.dir;
-      btn.addEventListener('click', () => {
-        startGame();
-        setDirection(dir);
-      });
-      btn.addEventListener('touchstart', e => {
-        e.preventDefault();
-        startGame();
-        setDirection(dir);
-      }, {passive: false});
-    });
-
-    function setDirection(dir) {
-      if (dir === 'up' && direction !== 'down') direction = 'up';
-      if (dir === 'down' && direction !== 'up') direction = 'down';
-      if (dir === 'left' && direction !== 'right') direction = 'left';
-      if (dir === 'right' && direction !== 'left') direction = 'right';
-    }
-
-    canvas.addEventListener('click', () => startGame());
-
-    draw();
-  </script>
-
+draw();
+</script>
 </body>
 </html>
