@@ -7,8 +7,9 @@
   <style>
     :root {
       --topbar-height: 60px;
+      --score-height: 38px;
       --bg: #222;
-      --panel: rgba(0, 0, 0, 0.2);
+      --panel: rgba(0, 0, 0, 0.25);
     }
 
     html, body {
@@ -65,11 +66,15 @@
       padding: 4px 10px;
       border-radius: 6px;
       z-index: 999;
+      height: var(--score-height);
+      display: flex;
+      align-items: center;
     }
 
     /* منطقة اللعبة */
     main {
-      padding-top: calc(var(--topbar-height) + 50px);
+      padding-top: calc(var(--topbar-height) + var(--score-height) + 30px);
+      /* مسافة إضافية حتى لا يختفي الثعبان خلف الشريط أو النقاط */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -119,7 +124,7 @@
       :root { --topbar-height: 54px; }
       .topbar img { height: 36px; width: 36px; }
       .topbar h1 { font-size: 15px; }
-      #score { font-size: 16px; }
+      #score { font-size: 16px; height: 34px; }
       .controls button { width: 54px; height: 54px; }
     }
   </style>
