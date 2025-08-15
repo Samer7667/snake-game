@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html id="html" lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <title>Snake game</title>
@@ -47,19 +46,46 @@
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid #fff;
+      flex: 0 0 auto;
     }
 
     .topbar h1 {
       font-size: 17px;
       margin: 0;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 0 1 auto;
     }
 
-    /* النقاط */
+    /* قائمة اللغة: تتحرك تلقائياً لنهاية السطر حسب الاتجاه */
+    .lang-select {
+      margin-inline-start: auto; /* تدفعها لنهاية الشريط: يسار في RTL، يمين في LTR */
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      appearance: none;
+      outline: none;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+    }
+    .lang-select:focus-visible {
+      outline: 2px solid rgba(255,255,255,0.75);
+      outline-offset: 2px;
+    }
+    .lang-select option {
+      background: #222;
+      color: #fff;
+    }
+
+    /* النقاط (تُثبت على جهة النهاية حسب الاتجاه) */
     #score {
       position: fixed;
       top: calc(var(--topbar-height) + 10px);
-      right: 20px;
+      inset-inline-end: 20px; /* بدلاً من right: يعمل مع RTL/LTR */
       font-size: 18px;
       font-weight: bold;
       color: yellow;
@@ -75,12 +101,10 @@
     /* منطقة اللعبة */
     main {
       padding-top: calc(var(--topbar-height) + var(--score-height) + 30px);
-      /* مسافة إضافية حتى لا يختفي الثعبان خلف الشريط أو النقاط */
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      
     }
 
     canvas {
@@ -107,7 +131,6 @@
     .controls button {
       width: 60px;
       height: 60px;
-
       border-radius: 8px;
       border: 0;
       background: #555;
@@ -127,6 +150,7 @@
       .topbar h1 { font-size: 15px; }
       #score { font-size: 16px; height: 34px; }
       .controls button { width: 54px; height: 54px; }
+      .lang-select { font-size: 12px; padding: 3px 6px; }
     }
   </style>
 </head>
@@ -134,7 +158,14 @@
   <!-- الشريط العلوي -->
   <div class="topbar">
     <img src="profile.jpg" alt="مطور">
-    <h1>🎮 لعبة الثعبان</h1>
+    <h1 id="game-title">🎮 لعبة الثعبان</h1>
+
+    <!-- قائمة اختيار اللغة (تتموضع تلقائياً نهاية الشريط) -->
+    <select id="lang-select" class="lang-select" title="اختر اللغة" aria-label="Language">
+      <option value="ar">العربية</option>
+      <option value="en">English</option>
+      <option value="es">Español</option>
+    </select>
   </div>
 
   <!-- النقاط -->
@@ -145,15 +176,85 @@
     <canvas id="game" width="400" height="400" tabindex="0"></canvas>
     <div class="controls" id="controls">
       <div></div>
-      <button data-dir="up">⬆️</button>
+      <button data-dir="up"    id="btn-up"    title="أعلى"     aria-label="أعلى">⬆️</button>
       <div></div>
-      <button data-dir="right">➡️</button>
-      <button data-dir="down">⬇️</button>
-      <button data-dir="left">⬅️</button>
+      <button data-dir="right" id="btn-right" title="يمين"     aria-label="يمين">➡️</button>
+      <button data-dir="down"  id="btn-down"  title="أسفل"     aria-label="أسفل">⬇️</button>
+      <button data-dir="left"  id="btn-left"  title="يسار"     aria-label="يسار">⬅️</button>
     </div>
   </main>
 
   <script>
+    /* ===================== i18n (سهل التوسعة) ===================== */
+    const TRANSLATIONS = {
+      ar: {
+        dir: "rtl",
+        title: "🎮 لعبة الثعبان",
+        pageTitle: "لعبة الثعبان",
+        scoreLabel: "النقاط: ",
+        gameOver: "انتهت اللعبة!\nنقاطك: ",
+        up: "أعلى", down: "أسفل", left: "يسار", right: "يمين",
+        langTitle: "اختر اللغة"
+      },
+      en: {
+        dir: "ltr",
+        title: "🎮 Snake Game",
+        pageTitle: "Snake Game",
+        scoreLabel: "Score: ",
+        gameOver: "Game Over!\nYour score: ",
+        up: "Up", down: "Down", left: "Left", right: "Right",
+        langTitle: "Choose language"
+      },
+      es: {
+        dir: "ltr",
+        title: "🎮 Juego de la Serpiente",
+        pageTitle: "Juego de la Serpiente",
+        scoreLabel: "Puntos: ",
+        gameOver: "¡Juego terminado!\nTu puntuación: ",
+        up: "Arriba", down: "Abajo", left: "Izquierda", right: "Derecha",
+        langTitle: "Elige idioma"
+      }
+    };
+
+    const langSelect = document.getElementById('lang-select');
+    let currentLang = localStorage.getItem('lang') || 'ar';
+
+    function applyLanguage(lang) {
+      const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
+      currentLang = lang;
+      localStorage.setItem('lang', currentLang);
+
+      // اتجاه ولغة الصفحة
+      document.documentElement.lang = lang;
+      document.documentElement.dir = t.dir || (lang === 'ar' ? 'rtl' : 'ltr');
+
+      // العناوين والنصوص
+      document.getElementById('game-title').textContent = t.title;
+      document.title = t.pageTitle;
+
+      // تحديث النقاط وعناوين الأزرار
+      updateScoreLabel();
+      document.getElementById('btn-up').title = t.up;
+      document.getElementById('btn-down').title = t.down;
+      document.getElementById('btn-left').title = t.left;
+      document.getElementById('btn-right').title = t.right;
+      document.getElementById('btn-up').setAttribute('aria-label', t.up);
+      document.getElementById('btn-down').setAttribute('aria-label', t.down);
+      document.getElementById('btn-left').setAttribute('aria-label', t.left);
+      document.getElementById('btn-right').setAttribute('aria-label', t.right);
+
+      // عنوان القائمة
+      langSelect.title = t.langTitle;
+    }
+
+    function updateScoreLabel() {
+      const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ar;
+      scoreEl.textContent = `${t.scoreLabel}${score}`;
+    }
+
+    langSelect.addEventListener('change', (e) => applyLanguage(e.target.value));
+
+    /* ===================== لعبة الثعبان ===================== */
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
@@ -168,6 +269,10 @@
     let intervalId = null;
     let started = false;
 
+    // طبّق اللغة المحفوظة عند التحميل
+    langSelect.value = currentLang;
+    applyLanguage(currentLang);
+
     function generateFood() {
       let newFood;
       do {
@@ -180,58 +285,54 @@
     }
 
     function draw() {
-
-
       ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // شبكة خفيفة
       ctx.strokeStyle = '#333';
       for (let x = 0; x < canvas.width; x += box) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
       }
       for (let y = 0; y < canvas.height; y += box) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
       }
 
+      // الثعبان
       for (let i = 0; i < snake.length; i++) {
         ctx.fillStyle = i === 0 ? 'lime' : 'green';
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
       }
 
+      // الطعام
       ctx.fillStyle = 'red';
       ctx.fillRect(food.x, food.y, box, box);
 
+      // حركة الرأس
       let head = { x: snake[0].x, y: snake[0].y };
-
       if (direction === 'right') head.x += box;
       if (direction === 'left') head.x -= box;
       if (direction === 'up') head.y -= box;
       if (direction === 'down') head.y += box;
 
+      // التفاف الحواف
       if (head.x < 0) head.x = canvas.width - box;
       if (head.x >= canvas.width) head.x = 0;
       if (head.y < 0) head.y = canvas.height - box;
       if (head.y >= canvas.height) head.y = 0;
 
+      // اصطدام مع الذات
       if (snake.some(s => s.x === head.x && s.y === head.y)) {
-        clearInterval(intervalId);
-        alert(`انتهت اللعبة!\nنقاطك: ${score}`);
-        location.reload();
+        gameOver();
         return;
       }
 
       snake.unshift(head);
 
+      // أكل الطعام
       if (head.x === food.x && head.y === food.y) {
         food = generateFood();
         score++;
-        scoreEl.innerText = `النقاط: ${score}`;
+        updateScoreLabel();
       } else {
         snake.pop();
       }
@@ -244,6 +345,14 @@
       intervalId = setInterval(draw, 150);
     }
 
+    function gameOver() {
+      clearInterval(intervalId);
+      const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ar;
+      alert(t.gameOver + score);
+      location.reload();
+    }
+
+    // لوحة المفاتيح
     window.addEventListener('keydown', e => {
       const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
       if (arrows.includes(e.key)) {
@@ -256,6 +365,7 @@
       }
     });
 
+    // أزرار اللمس/الضغط
     controls.querySelectorAll('button[data-dir]').forEach(btn => {
       const dir = btn.dataset.dir;
       btn.addEventListener('click', () => {
@@ -276,9 +386,12 @@
       if (dir === 'right' && direction !== 'left') direction = 'right';
     }
 
+    // بدء بالنقرة على اللوحة
     canvas.addEventListener('click', () => startGame());
 
+    // رسم أولي
     draw();
+
   </script>
 
 </body>
