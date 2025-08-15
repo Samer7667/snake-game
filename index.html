@@ -1,163 +1,174 @@
+
 <!DOCTYPE html>
-<html id="html" lang="ar" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>Snake game</title>
+  <title>🎮لعبةالثعبان</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root{
-      --topbar-height:60px;
-      --score-height:38px;
-      --bg:#171717;
-      --panel: rgba(0,0,0,0.3);
-      --accent: #7CFC00;
+    :root {
+      --topbar-height: 60px;
+      --score-height: 38px;
+      --bg: #222;
+      --panel: rgba(0, 0, 0, 0.25);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:var(--bg);color:#fff;font-family:system-ui,"Segoe UI",Arial,Helvetica;}
-    .topbar{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:980px;height:var(--topbar-height);display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--panel);border-radius:0 0 10px 10px;backdrop-filter:blur(6px);z-index:1000}
-    .topbar img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #fff;flex:0 0 auto}
-    .topbar h1{margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto}
-    .lang-select{margin-inline-start:auto;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer;backdrop-filter:blur(3px)}
-    #score{position:fixed;top:calc(var(--topbar-height)+10px);inset-inline-end:20px;font-size:18px;font-weight:700;color:yellow;background:rgba(0,0,0,0.45);padding:6px 10px;border-radius:8px;height:var(--score-height);display:flex;align-items:center;z-index:999}
-    main{padding-top:calc(var(--topbar-height) + var(--score-height) + 28px);min-height:100vh;display:flex;flex-direction:column;align-items:center}
-    canvas{width:400px;height:400px;max-width:90vw;max-height:90vw;background:#0f0f0f;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.7);display:block}
-    /* Controls (مواضع ثابتة) */
-    .controls{margin:18px;display:grid;grid-template-columns:64px 64px 64px;grid-template-rows:64px 64px;gap:12px;justify-content:center;grid-template-areas:"sp-up-left up sp-up-right" "left down right";direction:ltr}
-    .spacer{background:transparent}
-    .spacer.up-left{grid-area: sp-up-left}
-    .spacer.up-right{grid-area: sp-up-right}
-    #btn-up{grid-area: up} #btn-left{grid-area: left} #btn-down{grid-area: down} #btn-right{grid-area: right}
-    .controls button{width:64px;height:64px;border-radius:50%;border:0;background:linear-gradient(#3a3a3a,#222);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,0.6), inset 0 -2px 0 rgba(0,0,0,0.25);transition:transform .08s,box-shadow .12s}
-    .controls button:active{transform:translateY(2px) scale(.98);box-shadow:0 3px 8px rgba(0,0,0,0.5)} .controls button:hover{transform:translateY(-2px)}
-    @media(max-width:600px){:root{--topbar-height:54px}.topbar img{width:36px;height:36px}#score{font-size:15px;height:34px}.controls{grid-template-columns:54px 54px 54px;grid-template-rows:54px 54px;gap:8px}.controls button{width:54px;height:54px;font-size:18px}.lang-select{padding:5px 8px}}
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: #fff;
+      font-family: system-ui, Segoe UI, Helvetica, Arial;
+    }
+
+    /* الشريط العلوي */
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 980px;
+      height: var(--topbar-height);
+      background: var(--panel);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+      box-sizing: border-box;
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .topbar img {
+      height: 44px;
+      width: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+    }
+
+    .topbar h1 {
+      font-size: 17px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    /* النقاط */
+    #score {
+      position: fixed;
+      top: calc(var(--topbar-height) + 10px);
+      right: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: yellow;
+      background: rgba(0,0,0,0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      z-index: 999;
+      height: var(--score-height);
+      display: flex;
+      align-items: center;
+    }
+
+    /* منطقة اللعبة */
+    main {
+      padding-top: calc(var(--topbar-height) + var(--score-height) + 30px);
+      /* مسافة إضافية حتى لا يختفي الثعبان خلف الشريط أو النقاط */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+    }
+
+    canvas {
+      background: #111;
+      width: 400px;
+      height: 400px;
+      max-width: 90vw;
+      max-height: 90vw;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.6);
+      touch-action: none;
+      display: block;
+    }
+
+    /* أزرار التحكم */
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      margin: 18px;
+      justify-content: center;
+    }
+
+    .controls button {
+      width: 60px;
+      height: 60px;
+
+      border-radius: 8px;
+      border: 0;
+      background: #555;
+      color: #fff;
+      font-size: 20px;
+      touch-action: manipulation;
+    }
+
+    body.playing {
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    @media (max-width: 600px) {
+      :root { --topbar-height: 54px; }
+      .topbar img { height: 36px; width: 36px; }
+      .topbar h1 { font-size: 15px; }
+      #score { font-size: 16px; height: 34px; }
+      .controls button { width: 54px; height: 54px; }
+    }
   </style>
 </head>
 <body>
-  
+  <!-- الشريط العلوي -->
   <div class="topbar">
     <img src="profile.jpg" alt="مطور">
-    <h1 id="game-title">🎮 لعبة الثعبان</h1>
-    <select id="lang-select" class="lang-select" aria-label="Language">
-      <option value="ar">العربية</option>
-      <option value="en">English</option>
-      <option value="es">Español</option>
-    </select>
+    <h1>🎮 لعبة الثعبان</h1>
   </div>
 
-
+  <!-- النقاط -->
   <p id="score">النقاط: 0</p>
 
-
+  <!-- اللعبة -->
   <main>
-    <!-- ملاحظة: صفات width/height هنا مهمة للرسم، CSS يضبط العرض فقط -->
     <canvas id="game" width="400" height="400" tabindex="0"></canvas>
-
-    <div class="controls" id="controls" role="group" aria-label="Controls">
-      <div class="spacer up-left" aria-hidden="true"></div>
-      <button id="btn-up" data-dir="up" title="أعلى" aria-label="أعلى">⬆️</button>
-      <div class="spacer up-right" aria-hidden="true"></div>
-
-      <button id="btn-left" data-dir="left" title="يسار" aria-label="يسار">⬅️</button>
-      <button id="btn-down" data-dir="down" title="أسفل" aria-label="أسفل">⬇️</button>
-      <button id="btn-right" data-dir="right" title="يمين" aria-label="يمين">➡️</button>
+    <div class="controls" id="controls">
+      <div></div>
+      <button data-dir="up">⬆️</button>
+      <div></div>
+      <button data-dir="right">➡️</button>
+      <button data-dir="down">⬇️</button>
+      <button data-dir="left">⬅️</button>
     </div>
   </main>
 
   <script>
-    // --------- Utilities ----------
-    function getQueryParam(name){
-      try { return new URL(location.href).searchParams.get(name); } catch { return null; }
-    }
-
-    // --------- Translations ----------
-    const TRANSLATIONS = {
-      ar:{dir:"rtl", title:"🎮 لعبة الثعبان", pageTitle:"لعبة الثعبان", scoreLabel:"النقاط: ", gameOver:"انتهت اللعبة!\nنقاطك: ", langTitle:"اختر اللغة"},
-      en:{dir:"ltr", title:"🎮 Snake Game", pageTitle:"Snake Game", scoreLabel:"Score: ", gameOver:"Game Over!\nYour score: ", langTitle:"Choose language"},
-      es:{dir:"ltr", title:"🎮 Juego de la Serpiente", pageTitle:"Juego de la Serpiente", scoreLabel:"Puntos: ", gameOver:"¡Juego terminado!\nTu puntuación: ", langTitle:"Elige idioma"}
-    };
-
-    // --------- DOM references ----------
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const scoreEl = document.getElementById('score');
-    const langSelect = document.getElementById('lang-select');
-    const btnUp = document.getElementById('btn-up');
-    const btnDown = document.getElementById('btn-down');
-    const btnLeft = document.getElementById('btn-left');
-    const btnRight = document.getElementById('btn-right');
+    const controls = document.getElementById('controls');
 
-    // --------- Game state ----------
     const box = 20;
-    let snake = [{x:200,y:200}];
+    let snake = [{x:200, y:200}];
     let direction = 'right';
     let food = generateFood();
+
     let score = 0;
     let intervalId = null;
     let started = false;
 
-    // --------- Language init (from URL -> localStorage -> default) ----------
-    let urlLang = getQueryParam('lang');
-    let savedLang = localStorage.getItem('lang');
-    let currentLang = urlLang || savedLang || 'ar';
-
-    // set select to currentLang (will reflect after DOM loaded)
-    langSelect.value = currentLang;
-
-    // Apply language: set dir, title, labels
-    function applyLanguage(lang){
-      const t = TRANSLATIONS[lang] || TRANSLATIONS.ar;
-      currentLang = lang;
-      localStorage.setItem('lang', lang);
-      document.documentElement.lang = lang;
-      document.documentElement.dir = t.dir || 'ltr';
-      document.getElementById('game-title').textContent = t.title;
-      document.title = t.pageTitle;
-
-
-      langSelect.title = t.langTitle;
-      updateScoreLabel();
-      // Keep tooltip labels Arabic (you asked): always Arabic tooltips
-      setDirectionLabelsArabic();
-    }
-
-    // When user changes language from select -> open page for that language (reload with ?lang=xx)
-    langSelect.addEventListener('change', function(){
-      const chosen = this.value;
-      // build new URL preserving other params optionally; here we set only lang
-      const url = new URL(location.href);
-      url.searchParams.set('lang', chosen);
-      // go to that page (reload)
-      location.href = url.toString();
-    });
-
-    // Make direction tooltips always Arabic
-    function setDirectionLabelsArabic(){
-      btnUp.title = btnUp.getAttribute('aria-label') = "أعلى";
-      btnDown.title = btnDown.getAttribute('aria-label') = "أسفل";
-      btnLeft.title = btnLeft.getAttribute('aria-label') = "يسار";
-      btnRight.title = btnRight.getAttribute('aria-label') = "يمين";
-    }
-
-    function updateScoreLabel(){
-      const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ar;
-      scoreEl.textContent = `${t.scoreLabel}${score}`;
-    }
-
-    // --------- Controls binding (bind by ID to avoid DOM-order problems) ----------
-    function bindControlButtons(){
-      btnUp.addEventListener('click', ()=>{ startGame(); setDirection('up'); });
-      btnDown.addEventListener('click', ()=>{ startGame(); setDirection('down'); });
-      btnLeft.addEventListener('click', ()=>{ startGame(); setDirection('left'); });
-      btnRight.addEventListener('click', ()=>{ startGame(); setDirection('right'); });
-
-      // touch support
-      [btnUp,btnDown,btnLeft,btnRight].forEach(b => {
-        b.addEventListener('touchstart', e => { e.preventDefault(); startGame(); /* trigger click handler */; setDirection(b.dataset.dir); }, {passive:false});
-      });
-    }
-
-    // --------- Game logic ----------
-    function generateFood(){
+    function generateFood() {
       let newFood;
       do {
         newFood = {
@@ -168,89 +179,106 @@
       return newFood;
     }
 
-    function draw(){
-      ctx.fillStyle = '#0f0f0f'; ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.strokeStyle = '#272727';
-      for(let x=0;x<canvas.width;x+=box){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
-      for(let y=0;y<canvas.height;y+=box){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+    function draw() {
 
-      for(let i=0;i<snake.length;i++){
-        ctx.fillStyle = (i===0 ? '#9fff4a' : '#2aa12a');
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = '#333';
+      for (let x = 0; x < canvas.width; x += box) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += box) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? 'lime' : 'green';
         ctx.fillRect(snake[i].x, snake[i].y, box, box);
       }
 
-      ctx.fillStyle = '#ff4a4a'; ctx.fillRect(food.x, food.y, box, box);
-
-
+      ctx.fillStyle = 'red';
+      ctx.fillRect(food.x, food.y, box, box);
 
       let head = { x: snake[0].x, y: snake[0].y };
+
       if (direction === 'right') head.x += box;
       if (direction === 'left') head.x -= box;
       if (direction === 'up') head.y -= box;
       if (direction === 'down') head.y += box;
 
-      // wrap
       if (head.x < 0) head.x = canvas.width - box;
       if (head.x >= canvas.width) head.x = 0;
       if (head.y < 0) head.y = canvas.height - box;
       if (head.y >= canvas.height) head.y = 0;
 
-      // collision
-      if (snake.some(s => s.x === head.x && s.y === head.y)) { gameOver(); return; }
+      if (snake.some(s => s.x === head.x && s.y === head.y)) {
+        clearInterval(intervalId);
+        alert(`انتهت اللعبة!\nنقاطك: ${score}`);
+        location.reload();
+        return;
+      }
 
       snake.unshift(head);
 
-      if (head.x === food.x && head.y === food.y){
-        food = generateFood(); score++; updateScoreLabel();
+      if (head.x === food.x && head.y === food.y) {
+        food = generateFood();
+        score++;
+        scoreEl.innerText = `النقاط: ${score}`;
       } else {
         snake.pop();
       }
     }
 
-    function startGame(){
+    function startGame() {
       if (started) return;
-      started = true; document.body.classList.add('playing');
-      intervalId = setInterval(draw, 140);
+      started = true;
+      document.body.classList.add('playing');
+      intervalId = setInterval(draw, 150);
     }
 
-    function gameOver(){
-      clearInterval(intervalId);
-      const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ar;
-      alert(t.gameOver + score);
-      location.reload();
-    }
-
-    // keyboard (logical, independent of visual order)
     window.addEventListener('keydown', e => {
-      const arrows = ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
-      if (arrows.includes(e.key)){
-        e.preventDefault(); startGame();
-        if (e.key === 'ArrowUp'    && direction !== 'down')  direction = 'up';
-        if (e.key === 'ArrowDown'  && direction !== 'up')    direction = 'down';
-        if (e.key === 'ArrowLeft'  && direction !== 'right') direction = 'left';
-        if (e.key === 'ArrowRight' && direction !== 'left')  direction = 'right';
+      const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+      if (arrows.includes(e.key)) {
+        e.preventDefault();
+        startGame();
+        if (e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
+        if (e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
+        if (e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
+        if (e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
       }
     });
 
-    function setDirection(dir){
+    controls.querySelectorAll('button[data-dir]').forEach(btn => {
+      const dir = btn.dataset.dir;
+      btn.addEventListener('click', () => {
+        startGame();
+        setDirection(dir);
+      });
+      btn.addEventListener('touchstart', e => {
+        e.preventDefault();
+        startGame();
+        setDirection(dir);
+      }, {passive: false});
+    });
+
+    function setDirection(dir) {
       if (dir === 'up' && direction !== 'down') direction = 'up';
       if (dir === 'down' && direction !== 'up') direction = 'down';
       if (dir === 'left' && direction !== 'right') direction = 'left';
       if (dir === 'right' && direction !== 'left') direction = 'right';
     }
 
-    // click to start
-    canvas.addEventListener('click', ()=>startGame());
+    canvas.addEventListener('click', () => startGame());
 
-    // --------- Init on load ----------
-    (function init(){
-      // Apply language from URL/localStorage
-      applyLanguage(currentLang);
-      // Bind buttons
-      bindControlButtons();
-      // initial draw
-      draw();
-    })();
+    draw();
   </script>
 
 </body>
